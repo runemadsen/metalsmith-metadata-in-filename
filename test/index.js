@@ -5,6 +5,7 @@ const chai = require('chai')
 const chaiDatetime = require('chai-datetime')
 const { name } = require('../package.json')
 const plugin = require('../lib/')
+const collections = require('metalsmith-collections')
 
 const { expect } = chai
 chai.use(chaiDatetime)
@@ -75,6 +76,22 @@ describe(name, () => {
             expect(files[filename]).to.include.key('title')
             expect(files[filename].title).to.equal(title)
           })
+          done()
+        })
+    })
+
+    it('should pull only slug if date does not exist', done => {
+
+      let filename = 'no-date.md'
+      let title = 'no-date'
+
+      metalsmith
+        .use(plugin())
+        .build((err, files) => {
+          if (err) return done(err)
+          expect(files[filename]).to.not.include.key('date')
+          expect(files[filename]).to.include.key('slug')
+          expect(files[filename].slug).to.equal('no-date')
           done()
         })
     })
@@ -164,6 +181,35 @@ describe(name, () => {
           expect(files[filename].title).to.equal('Post')
           expect(files[filename].date).to.equalDate(date)
 
+          done()
+        })
+    })
+  })
+
+  describe('Collections', () => {
+    let metalsmith
+
+    beforeEach(() => {
+      metalsmith = Metalsmith('test/fixtures/collections/')
+    })
+
+    it('should pull date and slug from filename', done => {
+
+      const filename = "collection/2017-01-10-a-title.md"
+      const slug = "a-title"
+      const date = new Date(2017, 0, 10)
+
+      metalsmith
+        .use(plugin())
+        .use(collections({
+          collection: 'collection/*.md'
+        }))
+        .build((err, files) => {
+          if (err) return done(err)
+          expect(files[filename]).to.include.key('slug')
+          expect(files[filename].slug).to.equal(slug)
+          expect(files[filename]).to.include.key('date')
+          expect(files[filename].date).to.equalDate(date)
           done()
         })
     })

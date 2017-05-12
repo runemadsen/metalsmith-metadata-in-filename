@@ -82,8 +82,8 @@ describe(name, () => {
 
     it('should pull only slug if date does not exist', done => {
 
-      let filename = 'no-date.md'
-      let title = 'no-date'
+      const filename = 'no-date.md'
+      const title = 'no-date'
 
       metalsmith
         .use(plugin())
@@ -91,7 +91,7 @@ describe(name, () => {
           if (err) return done(err)
           expect(files[filename]).to.not.include.key('date')
           expect(files[filename]).to.include.key('slug')
-          expect(files[filename].slug).to.equal('no-date')
+          expect(files[filename].slug).to.equal(title)
           done()
         })
     })
